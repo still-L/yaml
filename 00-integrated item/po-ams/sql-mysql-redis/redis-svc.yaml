@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: po-ams-redis
+  namespace: po-ams
+  labels:
+    app: po-ams-redis
+spec:
+  type: NodePort
+  ports:
+    - name: po-ams-redis
+      port: 6379
+  selector:
+    app: po-ams-redis

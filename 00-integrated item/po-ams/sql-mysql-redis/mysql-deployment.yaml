@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: po-ams-mysql
+  namespace: po-ams
+  labels:
+    app: po-ams-mysql
+spec:
+  template:
+    metadata:
+      labels:
+        app: po-ams-mysql
+        tier: po-ams-mysql
+    spec:
+      containers:
+        - image: mysql:5.6
+          imagePullPolicy: Always
+          name: po-ams-mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: po.ams.123456
+          volumeMounts:
+            - name: mysql-cephfs
+              mountPath: /var/lib/mysql
+            - name: mysql-cm
+              mountPath: /etc/mysql/mysql.conf.d/
+      volumes:
+        - name: mysql-cephfs
+          persistentVolumeClaim:
+            claimName: po-ams-mysql-pvc-cephfs
+        - name: mysql-cm
+          configMap:
+            name: po-ams-cm-mysql

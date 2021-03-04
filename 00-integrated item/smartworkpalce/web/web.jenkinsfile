@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    environment {
+        version = "$BUILD_NUMBER"
+    }
+    tools {
+        nodejs 'NodeJS_14.3.0'
+    }
+    stages {
+        stage('检出代码 ') {
+            steps {
+                echo 'Building..'
+                checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'c84eb849-9efe-46f1-a6d1-cea6955e4415', url: 'git@gitlab.lenovo.com:development/LeFace-SmartWorkPlace-web.git']]])
+            }
+        }
+        stage('构建 build') {
+            steps {
+                echo 'npm run....'
+                sh 'npm install --unsafe-perm=true --allow-root'
+                sh 'npm rebuild node-sass --unsafe-perm=true --allow-root'
+            }
+        }
+        stage('Docker build') {
+            steps {
+                echo 'Docker build....'
+                sh("docker build -f web.dockerfile -t harbor.aipo.lenovo.com/web/smartworkplace_web:$version .")
+                sh("docker push harbor.aipo.lenovo.com/web/smartworkplace_web:$version")
+            }
+        }
+        stage('Deploy k8s') {
+            steps {
+                echo 'kubectl run'
+                sh("sed -i -e 's/\$version/$version/g' swp-web.yaml")
+                sh("kubectl apply -f swp-web.yaml")
+            }
+        }
+        stage('change swp-web.yamll env') {
+            steps {
+                echo 'change web-svc.yaml env'
+                sh ('sed -i "s/\$version/\\\$version/g" swp-web.yaml')
+            }
+        }
+    }
+}

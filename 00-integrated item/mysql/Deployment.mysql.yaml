@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zabbix-mysql
+  namespace: ai-po
+  labels:
+    app: zabbix-mysql
+spec:
+  template:
+    metadata:
+      labels:
+        app: zabbix-mysql
+        tier: zabbix--mysql
+    spec:
+      containers:
+        - image: mysql:5.6
+          imagePullPolicy: Always
+          name: zabbix-mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: zabbix123456
+          volumeMounts:
+            - name: mysql-cephfs
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-cephfs
+          persistentVolumeClaim:
+            claimName: ai-po-mysql-pvc-cephfs

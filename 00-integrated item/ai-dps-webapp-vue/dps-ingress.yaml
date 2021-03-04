@@ -1,0 +1,14 @@
+[root@k8s-1 ai-ml-dps]# cat dps-ingress.yaml
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      name: dps-ingress
+      namespace: ai-ml-dps
+    spec:
+      rules:
+        - host: ai-dps.ailab.lenovo.com
+          http:
+            paths:
+              - backend:
+                  serviceName: ai-dps-web-svc
+                  servicePort: 80

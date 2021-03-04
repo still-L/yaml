@@ -1,0 +1,32 @@
+#############mysql-pv-pvc.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: po-ams-mysql-pv-cephfs
+spec:
+  capacity:
+    storage: 200Gi
+  accessModes:
+    - ReadWriteMany
+  cephfs:
+    monitors:
+      - 10.110.149.4:6789
+    path: /PO/po-ams/mysql_data
+    user: admin
+    readOnly: false
+    secretRef:
+      name: cephfs-secret
+  persistentVolumeReclaimPolicy: Recycle
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: po-ams-mysql-pvc-cephfs
+  namespace: po-ams
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeName: po-ams-mysql-pv-cephfs
+  resources:
+    requests:
+      storage: 200Gi

@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: po-ams-redis
+  namespace: po-ams
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: po-ams-redis
+    spec:
+      containers:
+        - name: po-ams-redis
+          image: redis:5.0
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis-cm
+              mountPath: /etc/redis/redis.conf
+              subPath: redis.conf
+          command:
+            - redis-server
+          args:
+            - /etc/redis/redis.conf
+            - "--protected-mode"
+            - "no"
+      volumes:
+        - name: redis-cm
+          configMap:
+            name: po-ams-redis-cm

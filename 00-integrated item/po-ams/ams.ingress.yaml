@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ams-ingress
+  namespace: po-ams
+spec:
+  rules:
+    - host: po-ams.ailab.lenovo.com
+      http:
+        paths:
+          - backend:
+              serviceName: po-ams-web-svc
+              servicePort: 80
